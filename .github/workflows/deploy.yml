@@ -20,6 +20,28 @@ jobs:
             exit 1
           fi
 
+      - name: Check if style.css exists
+        run: |
+          if [ ! -f style.css ]; then
+            echo "style.css not found!"
+            exit 1
+          fi
+
+      - name: Check if images used in HTML exist
+        run: |
+          for img in $(grep -oP '(?<=src=")[^"]+' index.html); do
+            if [ ! -f "$img" ]; then
+              echo "Missing image: $img"
+              exit 1
+            fi
+          done
+
+      - name: Install HTMLHint
+        run: npm install -g htmlhint
+
+      - name: Validate HTML
+        run: htmlhint index.html
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
